@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Super Bluey Bros - Página Oficial del Juego</title>
+<style>
+  *{ box-sizing:border-box; margin:0; padding:0; font-family:'Segoe UI',sans-serif; }
+  body{ background:#0F172A; color:white; min-height:100vh; }
+  /* HEADER */
+  header{ background:linear-gradient(90deg,#1E90FF,#00C853); padding:12px 20px; display:flex; justify-content:space-between; align-items:center; position:sticky; top:0; z-index:10; box-shadow:0 4px 15px rgba(0,0,0,0.3); }
+  .logo{ font-size:22px; font-weight:900; display:flex; gap:8px; align-items:center; }
+  .logo span{ background:white; color:#1E90FF; padding:2px 8px; border-radius:8px; }
+  nav{ display:flex; gap:12px; font-weight:700; font-size:14px; }
+  nav a{ color:white; text-decoration:none; background:rgba(255,255,255,0.2); padding:6px 12px; border-radius:20px; }
+  /* HERO */
+  .hero{ text-align:center; padding:25px 15px 10px; background:radial-gradient(circle at 50% 0%, #2C003E 0%, #0F172A 70%); }
+  .hero h1{ font-size:36px; line-height:1; text-shadow:0 4px 20px rgba(0,255,0,0.5); }
+  .hero h1 em{ color:#FFD700; font-style:normal; }
+  .hero p{ opacity:0.85; margin:10px auto; max-width:600px; }
+  .badges{ display:flex; justify-content:center; gap:8px; flex-wrap:wrap; margin:12px; }
+  .badge{ background:#1E293B; border:1px solid #334155; padding:6px 12px; border-radius:20px; font-size:13px; font-weight:700; }
+  .badge.verde{ background:#00C853; color:white; border:none; }
+  .badge.rojo{ background:#FF0000; color:white; border:none; }
+  /* LAYOUT */
+  .container{ max-width:900px; margin:0 auto; padding:10px 12px 30px; }
+  .game-card{ background:#1E293B; border-radius:18px; padding:14px; box-shadow:0 10px 40px rgba(0,0,0,0.5); border:1px solid #334155; }
+  .top-bar{ display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:10px; }
+  .stats{ display:flex; gap:8px; flex-wrap:wrap; }
+  .stat{ background:#0F172A; padding:6px 10px; border-radius:10px; font-size:14px; font-weight:800; border:1px solid #334155; }
+  .stat b{ color:#FFD700; }
+  .btn{ border:none; cursor:pointer; padding:10px 16px; border-radius:10px; font-weight:800; color:white; font-size:15px; box-shadow:0 3px 10px rgba(0,0,0,0.3); }
+  .btn-play{ background:linear-gradient(90deg,#00C853,#00E676); font-size:18px; padding:12px 28px; }
+  .btn-red{ background:#FF4444; }
+  .btn-green{ background:#2ECC71; }
+  .btn-dark{ background:#334155; }
+  .btn-yellow{ background:#FFA500; color:black; }
+  /* BARRAS */
+  .barras{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin:8px 0; }
+  .barra-box{ background:#0F172A; padding:8px; border-radius:10px; font-size:12px; font-weight:800; }
+  .barra{ height:10px; background:#333; border-radius:10px; overflow:hidden; margin-top:4px; }
+  .fill{ height:100%; transition:width 0.5s; }
+  #tiempoFill{ background:linear-gradient(90deg,#00FF00,#7CFF00); width:100%; }
+  #volFill{ background:linear-gradient(90deg,#FFD700,#FFA500); width:10%; }
+  #intFill{ background:linear-gradient(90deg,#FF6B6B,#FF0000); width:5%; }
+  /* CANVAS WRAP */
+  .canvas-wrap{ position:relative; border-radius:14px; overflow:hidden; background:#000; }
+  canvas{ display:block; width:100%; height:auto; background:#5C94FC; }
+  /* OVERLAYS */
+  .overlay{ position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:20px; background:rgba(0,0,0,0.75); backdrop-filter:blur(3px); }
+  .overlay h2{ font-size:32px; margin-bottom:8px; }
+  .overlay p{ opacity:0.9; margin-bottom:14px; max-width:500px; }
+  .overlay.hidden{ display:none; }
+  .big-emoji{ font-size:70px; line-height:1; }
+  /* CONTROLES */
+  .controles{ display:flex; justify-content:center; gap:10px; margin-top:12px; flex-wrap:wrap; }
+  .btn-movil{ width:72px; height:62px; font-size:28px; background:#334155; color:white; border-radius:16px; border:none; box-shadow:0 4px 10px rgba(0,0,0,0.4); cursor:pointer; }
+  .btn-movil:active{ transform:scale(0.95); }
+  .btn-salto{ background:#FF4444; }
+  /* INFO ABAJO */
+  .info-grid{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-top:14px; }
+  .info-card{ background:#1E293B; border:1px solid #334155; border-radius:14px; padding:14px; }
+  .info-card h3{ font-size:16px; margin-bottom:6px; }
+  .info-card p, .info-card li{ font-size:13px; opacity:0.9; line-height:1.5; }
+  .info-card ul{ padding-left:16px; }
+  footer{ text-align:center; padding:18px; opacity:0.6; font-size:12px; }
+  body.nivel-alto{ background:#3A0000; }
+  body.nivel-extremo{ background:#FF0000; animation:parpadeo 0.8s infinite; }
+  @keyframes parpadeo{ 0%{ background:#FF0000; } 50%{ background:#8B0000; } 100%{ background:#FF0000; } }
+  @media(max-width:650px){ .info-grid{ grid-template-columns:1fr; } .barras{ grid-template-columns:1fr; } .hero h1{ font-size:28px; } nav{ display:none; } }
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">🐶 SUPER <span>BLUEY</span> BROS</div>
+  <nav><a href="#juego">🎮 Jugar</a><a href="#como">📖 Cómo jugar</a><a href="#niveles">🏆 Niveles</a></nav>
+  <div>🏆 Récord: <b id="recordTop">0</b></div>
+</header>
+
+<div class="hero">
+  <h1>Super Bluey Bros <em>REALISTA</em></h1>
+  <p>El juego de Bluey estilo Mario Bros. 10 niveles, cada uno de mínimo 2 minutos. Desde el nivel 3 se pone difícil, sube el volumen y la pantalla se pone roja 🔥</p>
+  <div class="badges"><span class="badge verde">✅ 10 Niveles</span><span class="badge">⏰ 2 min por nivel</span><span class="badge">🔊 Volumen que sube</span><span class="badge rojo">🔥 Modo Extremo Nivel 9-10</span><span class="badge">📱 Celular y PC</span></div>
+</div>
+
+<div class="container" id="juego">
+  <div class="game-card">
+    <div class="top-bar">
+      <div class="stats">
+        <div class="stat">Nivel: <b id="nivelTxt">1 / 10</b></div>
+        <div class="stat">Puntos: <b id="puntos">0</b></div>
+        <div class="stat">❤️ Vidas: <b id="vidas">3</b></div>
+        <div class="stat">🍪: <b id="monedas">0</b></div>
+        <div class="stat">⏰: <b id="tiempoTxt">145</b>s</div>
+      </div>
+      <div style="display:flex; gap:6px; flex-wrap:wrap;">
+        <button class="btn btn-dark" onclick="pausarJuego()" id="btnPausa">⏸️ Pausa</button>
+        <button class="btn btn-green" onclick="toggleSonido()" id="btnSonido">🔊 Sonido: ON</button>
+        <button class="btn btn-red" onclick="location.reload()">🔄 Reiniciar</button>
+      </div>
+    </div>
+
+    <div class="barras">
+      <div class="barra-box">⏰ Tiempo <span id="tiempoPorc">100%</span><div class="barra"><div class="fill" id="tiempoFill"></div></div></div>
+      <div class="barra-box">🔊 Volumen <span id="volTxt">14%</span><div class="barra"><div class="fill" id="volFill"></div></div></div>
+      <div class="barra-box">🔥 Intensidad <span id="intTxt">5%</span><div class="barra"><div class="fill" id="intFill"></div></div></div>
+    </div>
+    <p id="mensaje" style="font-weight:800; color:#FFD700; min-height:20px; text-align:center;"></p>
+
+    <div class="canvas-wrap">
+      <canvas id="juegoCanvas" width="800" height="400"></canvas>
+      <!-- PANTALLA DE INICIO -->
+      <div class="overlay" id="pantallaInicio">
+        <div class="big-emoji">🐶</div>
+        <h2>¡Bienvenido a Super Bluey Bros!</h2>
+        <p>Ayuda a Bluey a cruzar 10 mundos, recoger galletas y llegar a la bandera. ¡No te caigas y no dejes que te toquen los enemigos!</p>
+        <button class="btn btn-play" onclick="empezarJuego()">▶️ JUGAR AHORA</button>
+        <p style="font-size:12px; margin-top:10px;">⬅️ ➡️ moverse &nbsp; | &nbsp; ESPACIO / ⬆️ saltar &nbsp; | &nbsp; En celular usa los botones de abajo</p>
+      </div>
+      <!-- PAUSA -->
+      <div class="overlay hidden" id="pantallaPausa">
+        <div class="big-emoji">⏸️</div><h2>Pausado</h2><p>Tómate un respiro, Bluey te espera.</p>
+        <button class="btn btn-play" onclick="pausarJuego()">▶️ SEGUIR JUGANDO</button>
+      </div>
+      <!-- GAME OVER -->
+      <div class="overlay hidden" id="pantallaGameOver">
+        <div class="big-emoji">😿</div><h2>Game Over</h2><p id="textoGameOver">Te quedaste sin vidas</p>
+        <button class="btn btn-play" onclick="location.reload()">🔄 INTENTAR DE NUEVO</button>
+      </div>
+      <!-- VICTORIA -->
+      <div class="overlay hidden" id="pantallaVictoria">
+        <div class="big-emoji">🏆</div><h2>¡GANASTE!</h2><p id="textoVictoria">¡Eres el mejor Bluey del mundo!</p>
+        <button class="btn btn-play" onclick="location.reload()">🎮 JUGAR OTRA VEZ</button>
+      </div>
+    </div>
+
+    <div class="controles">
+      <button class="btn-movil" ontouchstart="teclas['ArrowLeft']=true" ontouchend="teclas['ArrowLeft']=false" onmousedown="teclas['ArrowLeft']=true" onmouseup="teclas['ArrowLeft']=false">⬅️</button>
+      <button class="btn-movil" ontouchstart="teclas['ArrowRight']=true" ontouchend="teclas['ArrowRight']=false" onmousedown="teclas['ArrowRight']=true" onmouseup="teclas['ArrowRight']=false">➡️</button>
+      <button class="btn-movil btn-salto" ontouchstart="saltar()" onmousedown="saltar()">⬆️ SALTAR</button>
+      <button class="btn-movil" style="background:#FFA500;" onclick="pausarJuego()">⏸️</button>
+    </div>
+  </div>
+
+  <div class="info-grid" id="como">
+    <div class="info-card"><h3>📖 Cómo jugar</h3><ul><li><b>PC:</b> Flechas ⬅️ ➡️ para moverte, ESPACIO o ⬆️ para saltar</li><li><b>Celular:</b> Usa los botones de abajo</li><li><b>Pisa</b> a los enemigos para ganar +100</li><li><b>No te caigas</b> a los huecos</li><li>Llega a la <b>bandera 🏁</b> antes de que se acabe el tiempo</li></ul></div>
+    <div class="info-card" id="niveles"><h3>🏆 Niveles</h3><ul><li><b>1-2:</b> Fácil, para aprender</li><li><b>3-5:</b> Difícil, más enemigos y huecos</li><li><b>6-8:</b> Muy difícil, enemigos rápidos y voladores</li><li><b>9-10:</b> EXTREMO, todo rojo, volumen al máximo</li><li>Cada nivel dura <b>mínimo 2 minutos</b></li></ul></div>
+    <div class="info-card"><h3>⭐ Puntos</h3><ul><li>🍪 Galleta = <b>+50</b></li><li>😼 Pisar enemigo = <b>+100</b></li><li>❓ Bloque ? = <b>+100</b></li><li>🏁 Terminar nivel = <b>+500</b></li><li>Tu récord se guarda solo</li></ul><p style="margin-top:8px;">Récord actual: <b id="recordAbajo" style="color:#FFD700;">0</b> puntos</p></div>
+  </div>
+</div>
+<footer>Super Bluey Bros • Hecho con ❤️ • Guarda este archivo como <b>index.html</b> y la foto como <b>bluey.png</b> en la misma carpeta</footer>
+
+<script>
+const canvas=document.getElementById("juegoCanvas");
+const ctx=canvas.getContext("2d");
+const imgBluey = new Image(); imgBluey.src="bluey.png";
+let blueyListo=false; imgBluey.onload=()=>{ blueyListo=true; };
+let sonidoActivo=true, audioCtx=null, nivelActual=1, juegoEmpezado=false, pausado=false;
+let puntos=0, vidas=3, monedas=0, frame=0;
+let jugador={x:50,y:290,w:44,h:72,vx:0,vy:0,enSuelo:false,invencible:0,mirando:"derecha"};
+let teclas={}, camaraX=0, shakeX=0, shakeY=0, tiempoRestante=145, ultimoSegundo=Date.now(), nivel=null, particulas=[];
+let record = parseInt(localStorage.getItem("blueyRecord")||"0"); document.getElementById("recordTop").innerText=record; document.getElementById("recordAbajo").innerText=record;
+
+function getVolumen(){ let v=0.05+(nivelActual-1)*0.035; if(v>0.35) v=0.35; return v; }
+function getVolumenPorc(){ return Math.round(getVolumen()/0.35*100); }
+function getIntensidad(){ let i=(nivelActual-1)*11+5; if(i>100) i=100; return i; }
+function actualizarBarras(){
+  document.getElementById("volFill").style.width=getVolumenPorc()+"%";
+  document.getElementById("volTxt").innerText=getVolumenPorc()+"%";
+  document.getElementById("intFill").style.width=getIntensidad()+"%";
+  document.getElementById("intTxt").innerText=getIntensidad()+"%";
+  document.body.classList.remove("nivel-alto","nivel-extremo");
+  if(nivelActual>=6 && nivelActual<=8) document.body.classList.add("nivel-alto");
+  if(nivelActual>=9) document.body.classList.add("nivel-extremo");
+}
+function initAudio(){ if(!audioCtx) audioCtx=new (window.AudioContext||window.webkitAudioContext)(); if(audioCtx.state==="suspended") audioCtx.resume(); }
+function toggleSonido(){ sonidoActivo=!sonidoActivo; document.getElementById("btnSonido").innerText=sonidoActivo?"🔊 Sonido: ON":"🔇 Sonido: OFF"; }
+function beep(f,d,tipo="square",volBase=0.12,des=null){
+  if(!sonidoActivo||!audioCtx) return; let vol=volBase*(getVolumen()/0.12); if(nivelActual>=7) f=f*1.15;
+  const o=audioCtx.createOscillator(), g=audioCtx.createGain(); o.connect(g); g.connect(audioCtx.destination); o.type=tipo; o.frequency.setValueAtTime(f,audioCtx.currentTime); if(des) o.frequency.exponentialRampToValueAtTime(des,audioCtx.currentTime+d); g.gain.setValueAtTime(vol,audioCtx.currentTime); g.gain.exponentialRampToValueAtTime(0.01,audioCtx.currentTime+d); o.start(); o.stop(audioCtx.currentTime+d);
+}
+function sSalto(){ beep(300,0.18,"square",0.10,600); }
+function sMoneda(){ beep(900,0.08,"sine",0.18); setTimeout(()=>beep(1300,0.12,"sine",0.18),70); }
+function sDanio(){ beep(400,0.3,"sawtooth",0.15,80); }
+function sEnemigo(){ beep(200,0.2,"sawtooth",0.12,50); }
+function sNivel(){ beep(523,0.15,"square",0.12); setTimeout(()=>beep(659,0.15,"square",0.12),150); setTimeout(()=>beep(784,0.3,"square",0.12),300); if(nivelActual>=5) setTimeout(()=>beep(1046,0.3,"square",0.15),450); if(nivelActual>=8) setTimeout(()=>beep(1318,0.4,"square",0.18),600); }
+function sGanar(){ [523,659,784,1046,1318].forEach((n,i)=>setTimeout(()=>beep(n,0.25,"square",0.15),i*180)); }
+let musicaInterval=null;
+function iniciarMusica(){ if(musicaInterval) clearInterval(musicaInterval); const mel=[523,0,659,0,784,0,659,784,0,1046,0,784]; let idx=0; let velocidad=380-(nivelActual-1)*22; if(velocidad<180) velocidad=180; musicaInterval=setInterval(()=>{ if(sonidoActivo&&audioCtx&&!pausado&&juegoEmpezado){ const n=mel[idx%mel.length]; if(n!==0){ let vMusica=0.03+(nivelActual-1)*0.008; if(vMusica>0.12) vMusica=0.12; const o=audioCtx.createOscillator(), g=audioCtx.createGain(); o.connect(g); g.connect(audioCtx.destination); o.type="triangle"; o.frequency.setValueAtTime(n,audioCtx.currentTime); g.gain.setValueAtTime(vMusica,audioCtx.currentTime); g.gain.exponentialRampToValueAtTime(0.01,audioCtx.currentTime+0.18); o.start(); o.stop(audioCtx.currentTime+0.18); } } idx++; },velocidad); }
+
+function empezarJuego(){ initAudio(); juegoEmpezado=true; document.getElementById("pantallaInicio").classList.add("hidden"); iniciarMusica(); ultimoSegundo=Date.now(); }
+function pausarJuego(){ if(!juegoEmpezado) return; pausado=!pausado; document.getElementById("pantallaPausa").classList.toggle("hidden",!pausado); document.getElementById("btnPausa").innerText=pausado?"▶️ Seguir":"⏸️ Pausa"; if(!pausado) ultimoSegundo=Date.now(); }
+function saltar(){ if(!juegoEmpezado||pausado) return; initAudio(); if(!musicaInterval) iniciarMusica(); if(jugador.enSuelo){ jugador.vy=-13.5; jugador.enSuelo=false; sSalto(); for(let i=0;i<6;i++) particulas.push({x:jugador.x+20,y:jugador.y+70,vx:(Math.random()-0.5)*3,vy:Math.random()*2,vida:20,color:"#D2B48C"}); if(nivelActual>=6) shakeY=3; if(nivelActual>=9) shakeY=6; } }
+document.addEventListener("keydown",e=>{ teclas[e.code]=true; if(e.code==="Space"){ e.preventDefault(); if(!juegoEmpezado) empezarJuego(); else saltar(); } if(e.code==="KeyP") pausarJuego(); });
+document.addEventListener("keyup",e=>teclas[e.code]=false);
+
+function crearNivel(n){
+  let dificultad=1; if(n>=3) dificultad=1+(n-2)*0.35; if(n>=7) dificultad+=0.5;
+  let largo=3200+(n*150); let plataformas=[{x:0,y:360,w:largo,h:80}]; let huecos=[], enemigos=[], monedasArr=[], bloques=[];
+  for(let i=0;i<12+n*2;i++){ let px=250+i*220+Math.random()*60; let py=150+Math.random()*150; if(py>300) py=280; plataformas.push({x:px,y:py,w:90+Math.random()*40,h:18,flotante:true}); if(Math.random()<0.7) monedasArr.push({x:px+30,y:py-30,t:false}); }
+  let numHuecos=n<3?2:3+n; for(let i=0;i<numHuecos;i++){ let hx=500+i*400+Math.random()*200; let hw=n<3?60:70+n*8; if(hw>140) hw=140; huecos.push({x:hx,w:hw}); if(n>=4 && Math.random()<0.5) plataformas.push({x:hx+hw/2-30,y:260,w:60,h:15,flotante:true}); }
+  let numEnemigos=n<3?3+n:5+n*2; for(let i=0;i<numEnemigos;i++){ let ex=400+i*(largo/numEnemigos)+Math.random()*100; let vel=(1+n*0.25)*dificultad; if(vel>4.5) vel=4.5; let tipo="normal"; if(n>=5 && Math.random()<0.3) tipo="rapido"; if(n>=7 && Math.random()<0.2) tipo="volador"; enemigos.push({x:ex,y:320,w:34,h:32,vx:vel,dir:1,vy:0,tipo:tipo,vivo:true,baseY:280+Math.random()*50}); }
+  for(let i=0;i<25;i++) monedasArr.push({x:150+i*120+Math.random()*40,y:280-Math.random()*150,t:false});
+  for(let i=0;i<8;i++) bloques.push({x:300+i*380,y:200,t:false});
+  let tiempo=150-n*5; if(tiempo<120) tiempo=120; if(n>=8) tiempo=130;
+  return {largo,plataformas,huecos,enemigos,monedas:monedasArr,bloques,meta:{x:largo-120,y:280},tiempo, nombre:n===1?"Mundo 1-1 - Pradera":n===2?"Mundo 1-2 - Colinas":n===3?"Mundo 1-3 - ¡Se pone difícil!":n===4?"Mundo 1-4 - Cueva":n===5?"Mundo 2-1 - Nubes":n===6?"Mundo 2-2 - Tormenta":n===7?"Mundo 2-3 - Volcán":n===8?"Mundo 2-4 - Castillo":n===9?"Mundo 3-1 - Final":"Mundo 3-2 - JEFE FINAL"};
+}
+function cargarNivel(n){ nivel=crearNivel(n); jugador.x=50; jugador.y=280; jugador.vx=0; jugador.vy=0; camaraX=0; tiempoRestante=nivel.tiempo; ultimoSegundo=Date.now(); document.getElementById("nivelTxt").innerText=n+" / 10"; document.getElementById("tiempoTxt").innerText=tiempoRestante; actualizarBarras(); iniciarMusica(); let msg="📍 "+nivel.nombre+" - Llega a la bandera en "+tiempoRestante+"s"; if(n>=3) msg+=" - ⚠️ DIFICULTAD ALTA"; if(n>=3) msg+=" - 🔊 Vol "+getVolumenPorc()+"% - 🔥 Intensidad "+getIntensidad()+"%"; if(n>=9) msg="🔥🔥 ¡MODO EXTREMO! TODO ROJO Y AL MÁXIMO 🔥🔥"; document.getElementById("mensaje").innerText=msg; }
+cargarNivel(1); actualizarBarras();
+
+function guardarRecord(){ if(puntos>record){ record=puntos; localStorage.setItem("blueyRecord",record); document.getElementById("recordTop").innerText=record; document.getElementById("recordAbajo").innerText=record; } }
+function perderVida(mensaje){ vidas--; document.getElementById("vidas").innerText=vidas; sDanio(); document.getElementById("mensaje").innerText=mensaje+" Te quedan "+vidas+" vidas"; jugador.x=50; jugador.y=280; camaraX=0; jugador.invencible=120; for(let i=0;i<15;i++) particulas.push({x:jugador.x+20,y:jugador.y+30,vx:(Math.random()-0.5)*5,vy:(Math.random()-0.5)*5,vida:30,color:"#FF0000"}); if(nivelActual>=6){ shakeX=10; shakeY=10; } if(vidas<=0){ guardarRecord(); document.getElementById("textoGameOver").innerText="Llegaste al nivel "+nivelActual+" con "+puntos+" puntos. Récord: "+record; document.getElementById("pantallaGameOver").classList.remove("hidden"); juegoEmpezado=false; } }
+
+function dibujarFondoRealista(){
+  let cielo; if(nivelActual>=9){ cielo=ctx.createLinearGradient(0,0,0,400); cielo.addColorStop(0,"#1A0000"); cielo.addColorStop(0.5,"#4B0000"); cielo.addColorStop(1,"#FF4500"); } else if(nivelActual>=7){ cielo=ctx.createLinearGradient(0,0,0,400); cielo.addColorStop(0,"#2C003E"); cielo.addColorStop(0.6,"#4B0082"); cielo.addColorStop(1,"#FF6B6B"); } else if(nivelActual>=4){ cielo=ctx.createLinearGradient(0,0,0,400); cielo.addColorStop(0,"#1E90FF"); cielo.addColorStop(0.6,"#87CEEB"); cielo.addColorStop(1,"#E0F6FF"); } else { cielo=ctx.createLinearGradient(0,0,0,400); cielo.addColorStop(0,"#4A90D9"); cielo.addColorStop(0.4,"#87CEEB"); cielo.addColorStop(0.8,"#BFE8FF"); cielo.addColorStop(1,"#FFF8DC"); }
+  ctx.fillStyle=cielo; ctx.fillRect(-10,-10,820,420);
+  if(nivelActual<7){ let sx=650-camaraX*0.05; let g=ctx.createRadialGradient(sx,60,5,sx,60,60); g.addColorStop(0,"rgba(255,255,200,0.9)"); g.addColorStop(0.3,"rgba(255,255,150,0.6)"); g.addColorStop(1,"rgba(255,255,150,0)"); ctx.fillStyle=g; ctx.beginPath(); ctx.arc(sx,60,60,0,Math.PI*2); ctx.fill(); ctx.fillStyle="#FFF68F"; ctx.beginPath(); ctx.arc(sx,60,28,0,Math.PI*2); ctx.fill(); }
+  ctx.fillStyle=nivelActual>=7?"rgba(80,0,80,0.5)":"rgba(100,150,100,0.5)"; for(let i=0;i<4;i++){ let mx=i*350-(camaraX*0.2%1400); if(mx<-200) mx+=1400; ctx.beginPath(); ctx.moveTo(mx,360); ctx.lineTo(mx+150,180); ctx.lineTo(mx+300,360); ctx.closePath(); ctx.fill(); }
+  for(let i=0;i<5;i++){ let cx=(i*320-camaraX*0.3)%1400; if(cx<-100) cx+=1400; let cy=30+i*22; ctx.fillStyle="rgba(0,0,0,0.08)"; ctx.beginPath(); ctx.ellipse(cx+4,cy+6,48,16,0,0,Math.PI*2); ctx.fill(); ctx.fillStyle="rgba(255,255,255,0.95)"; ctx.beginPath(); ctx.ellipse(cx,cy,45,14,0,0,Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.ellipse(cx-15,cy-6,20,14,0,0,Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.ellipse(cx+15,cy-6,22,14,0,0,Math.PI*2); ctx.fill(); }
+  for(let i=0;i<6;i++){ let tx=(i*500-camaraX*0.5)%3000; if(tx<-100) tx+=3000; ctx.fillStyle="#8B4513"; ctx.fillRect(tx,300,12,60); let ga=ctx.createRadialGradient(tx+6,290,5,tx+6,290,45); ga.addColorStop(0,"#2ECC71"); ga.addColorStop(1,"#1E8449"); ctx.fillStyle=ga; ctx.beginPath(); ctx.arc(tx+6,280,32,0,Math.PI*2); ctx.fill(); }
+}
+function dibujarSueloRealista(p,segments){ for(let s of segments){ if(s.w<=0) continue; let sx=s.x-camaraX; let gt=ctx.createLinearGradient(0,360,0,400); if(nivelActual>=9){ gt.addColorStop(0,"#4B0000"); gt.addColorStop(1,"#1A0000"); } else { gt.addColorStop(0,"#8B5A2B"); gt.addColorStop(0.3,"#A0522D"); gt.addColorStop(1,"#5C3317"); } ctx.fillStyle=gt; ctx.fillRect(sx,360,s.w,40); let gp=ctx.createLinearGradient(0,360,0,375); if(nivelActual>=9){ gp.addColorStop(0,"#FF4500"); gp.addColorStop(1,"#8B0000"); } else { gp.addColorStop(0,"#7CFC00"); gp.addColorStop(0.5,"#2ECC71"); gp.addColorStop(1,"#27AE60"); } ctx.fillStyle=gp; ctx.beginPath(); ctx.roundRect(sx,360,s.w,14,4); ctx.fill(); ctx.strokeStyle=nivelActual>=9?"#FF6B00":"#1E8449"; ctx.lineWidth=1; for(let bx=sx+5; bx<sx+s.w-5; bx+=12){ ctx.beginPath(); ctx.moveTo(bx,362); ctx.lineTo(bx+2,356); ctx.stroke(); } ctx.fillStyle="rgba(255,255,255,0.25)"; ctx.fillRect(sx,360,s.w,3); } }
+function dibujarPlataformaRealista(p){ let sx=p.x-camaraX; let gm=ctx.createLinearGradient(0,p.y,0,p.y+p.h); if(nivelActual>=9){ gm.addColorStop(0,"#FF6B00"); gm.addColorStop(1,"#8B0000"); } else { gm.addColorStop(0,"#E8A85C"); gm.addColorStop(0.5,"#C47A2E"); gm.addColorStop(1,"#8B4513"); } ctx.fillStyle=gm; ctx.beginPath(); ctx.roundRect(sx,p.y,p.w,p.h,6); ctx.fill(); ctx.fillStyle="rgba(255,255,255,0.35)"; ctx.beginPath(); ctx.roundRect(sx,p.y,p.w,4,2); ctx.fill(); }
+function dibujarBluey(){
+  let x=jugador.x-camaraX, y=jugador.y; let altura=Math.max(0,360-(y+jugador.h)); let an=22-Math.min(10,altura*0.05); let op=0.3-Math.min(0.2,altura*0.001); if(op<0.05) op=0.05; ctx.fillStyle="rgba(0,0,0,"+op+")"; ctx.beginPath(); ctx.ellipse(x+jugador.w/2,362,an,4,0,0,Math.PI*2); ctx.fill();
+  if(blueyListo){ ctx.save(); if(jugador.mirando==="izquierda"){ ctx.translate(x+jugador.w,0); ctx.scale(-1,1); x=0; } let reb=0; if(jugador.vx!==0 && jugador.enSuelo) reb=Math.sin(frame*0.4)*1.5; let inc=0; if(!jugador.enSuelo) inc=jugador.vy>0?0.12:-0.12; ctx.translate(x+jugador.w/2,y+jugador.h/2); ctx.rotate(inc); ctx.translate(-(x+jugador.w/2),-(y+jugador.h/2)); ctx.shadowColor="rgba(0,0,0,0.3)"; ctx.shadowBlur=6; ctx.shadowOffsetY=3; ctx.drawImage(imgBluey,x-3,y-5+reb,jugador.w+6,jugador.h+6); ctx.restore(); }
+  else { ctx.fillStyle="#7CC6E8"; ctx.fillRect(x,y,jugador.w,jugador.h); ctx.fillStyle="black"; ctx.fillRect(x+10,y+10,8,8); }
+}
+function dibujarEnemigo(e){ let x=e.x-camaraX, y=e.y; ctx.fillStyle="rgba(0,0,0,0.25)"; ctx.beginPath(); ctx.ellipse(x+e.w/2,362,16,3,0,0,Math.PI*2); ctx.fill(); ctx.save(); ctx.shadowColor="rgba(0,0,0,0.3)"; ctx.shadowBlur=4; if(e.tipo==="volador"){ ctx.fillStyle="#6A0DAD"; ctx.beginPath(); ctx.roundRect(x,y+8,e.w,e.h-8,8); ctx.fill(); ctx.fillStyle="white"; ctx.beginPath(); ctx.roundRect(x+5,y,24,12,4); ctx.fill(); ctx.fillStyle="black"; ctx.fillRect(x+8,y+3,5,5); ctx.fillRect(x+18,y+3,5,5); } else if(e.tipo==="rapido"){ let g=ctx.createLinearGradient(x,y,x,y+e.h); g.addColorStop(0,"#FF6B6B"); g.addColorStop(1,"#C0392B"); ctx.fillStyle=g; ctx.beginPath(); ctx.roundRect(x,y+8,e.w,e.h-8,6); ctx.fill(); ctx.beginPath(); ctx.roundRect(x+3,y,28,16,4); ctx.fill(); ctx.fillStyle="#FFD700"; ctx.fillRect(x+6,y+4,6,6); ctx.fillRect(x+19,y+4,6,6); } else { let g=ctx.createLinearGradient(x,y,x,y+e.h); g.addColorStop(0,"#B0B0B0"); g.addColorStop(1,"#666"); ctx.fillStyle=g; ctx.beginPath(); ctx.roundRect(x,y+8,e.w,e.h-8,6); ctx.fill(); ctx.beginPath(); ctx.roundRect(x+3,y,28,16,4); ctx.fill(); ctx.fillStyle="#FFD700"; ctx.beginPath(); ctx.arc(x+9,y+7,3,0,Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.arc(x+22,y+7,3,0,Math.PI*2); ctx.fill(); } ctx.restore(); }
+function dibujarMoneda(m){ let mx=m.x-camaraX; let esc=Math.abs(Math.sin(frame*0.1+m.x*0.01)); let an=8+esc*14; ctx.fillStyle="rgba(255,215,0,0.3)"; ctx.beginPath(); ctx.ellipse(mx+10,m.y+5,16,6,0,0,Math.PI*2); ctx.fill(); ctx.save(); ctx.translate(mx+10,m.y); ctx.scale(an/22,1); let g=ctx.createRadialGradient(0,0,2,0,0,14); g.addColorStop(0,"#FFD98E"); g.addColorStop(0.7,"#E8A85C"); g.addColorStop(1,"#B87333"); ctx.fillStyle=g; ctx.beginPath(); ctx.arc(0,0,12,0,Math.PI*2); ctx.fill(); ctx.fillStyle="#5C3317"; ctx.beginPath(); ctx.arc(-4,-3,1.5,0,Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.arc(4,2,1.5,0,Math.PI*2); ctx.fill(); ctx.restore(); }
+function dibujarBloque(b){ let bx=b.x-camaraX; let g=ctx.createLinearGradient(bx,b.y,bx,b.y+30); if(b.t){ g.addColorStop(0,"#A0522D"); g.addColorStop(1,"#5C3317"); } else { g.addColorStop(0,"#FFE55C"); g.addColorStop(0.5,"#FFD700"); g.addColorStop(1,"#DAA520"); } ctx.fillStyle=g; ctx.beginPath(); ctx.roundRect(bx,b.y,30,30,4); ctx.fill(); ctx.fillStyle=b.t?"#DDD":"#8B4513"; ctx.font="bold 18px Arial"; ctx.textAlign="center"; ctx.fillText(b.t?"✓":"?",bx+15,b.y+22); }
+
+function actualizar(){
+  if(!juegoEmpezado||pausado) return;
+  frame++;
+  for(let p of particulas){ p.x+=p.vx; p.y+=p.vy; p.vy+=0.2; p.vida--; } particulas=particulas.filter(p=>p.vida>0);
+  if(Date.now()-ultimoSegundo>=1000){ tiempoRestante--; ultimoSegundo=Date.now(); document.getElementById("tiempoTxt").innerText=tiempoRestante; let porc=(tiempoRestante/nivel.tiempo)*100; document.getElementById("tiempoFill").style.width=porc+"%"; document.getElementById("tiempoPorc").innerText=Math.round(porc)+"%"; if(tiempoRestante<=0){ perderVida("⏰ ¡Se acabó el tiempo!"); tiempoRestante=nivel.tiempo; } }
+  if(teclas["ArrowLeft"]){ jugador.vx=-4.5; jugador.mirando="izquierda"; } else if(teclas["ArrowRight"]){ jugador.vx=4.5; jugador.mirando="derecha"; } else jugador.vx=0;
+  jugador.vy+=0.65; jugador.x+=jugador.vx; jugador.y+=jugador.vy; jugador.enSuelo=false;
+  for(let p of nivel.plataformas){ let enHueco=false; for(let h of nivel.huecos){ if(jugador.x+jugador.w>h.x && jugador.x<h.x+h.w && p.y===360) enHueco=true; } if(enHueco && p.y===360) continue; if(jugador.x+jugador.w>p.x && jugador.x<p.x+p.w && jugador.y+jugador.h>p.y && jugador.y+jugador.h<p.y+25 && jugador.vy>=0){ jugador.y=p.y-jugador.h; jugador.vy=0; jugador.enSuelo=true; } if(p.flotante && jugador.x+jugador.w>p.x && jugador.x<p.x+p.w && jugador.y+jugador.h>p.y && jugador.y+jugador.h<p.y+20 && jugador.vy>=0){ jugador.y=p.y-jugador.h; jugador.vy=0; jugador.enSuelo=true; } }
+  if(jugador.x<0) jugador.x=0; if(jugador.x>nivel.largo) jugador.x=nivel.largo; if(jugador.y>500){ perderVida("🕳️ ¡Te caíste!"); return; } if(jugador.invencible>0) jugador.invencible--;
+  camaraX=jugador.x-300; if(camaraX<0) camaraX=0; if(camaraX>nivel.largo-800) camaraX=nivel.largo-800;
+  if(nivelActual>=8){ shakeX=Math.random()*2-1; shakeY=Math.random()*2-1; } else if(shakeX!==0||shakeY!==0){ shakeX*=0.8; shakeY*=0.8; if(Math.abs(shakeX)<0.2) shakeX=0; if(Math.abs(shakeY)<0.2) shakeY=0; }
+  for(let m of nivel.monedas){ if(!m.t && Math.abs(jugador.x-m.x)<30 && Math.abs(jugador.y-m.y)<35){ m.t=true; monedas++; puntos+=50; document.getElementById("monedas").innerText=monedas; document.getElementById("puntos").innerText=puntos; sMoneda(); guardarRecord(); for(let i=0;i<8;i++) particulas.push({x:m.x,y:m.y,vx:(Math.random()-0.5)*4,vy:(Math.random()-0.5)*4,vida:25,color:"#FFD700"}); if(nivelActual>=7) shakeY=2; } }
+  for(let b of nivel.bloques){ if(!b.t && jugador.x+jugador.w>b.x && jugador.x<b.x+30 && jugador.y<b.y+30 && jugador.y+jugador.h>b.y){ if(jugador.vy<0){ b.t=true; puntos+=100; document.getElementById("puntos").innerText=puntos; sMoneda(); jugador.vy=4; } } }
+  for(let e of nivel.enemigos){ if(!e.vivo) continue; if(e.tipo==="volador"){ e.x+=e.vx*e.dir; e.y=e.baseY+Math.sin(frame*0.05+e.x*0.01)*30; } else { e.x+=e.vx*e.dir; if(Math.random()<0.005) e.dir*=-1; if(e.x<0) e.dir=1; } if(e.x<jugador.x-700||e.x>jugador.x+700) continue; if(jugador.x+jugador.w>e.x && jugador.x<e.x+e.w && jugador.y+jugador.h>e.y && jugador.y<e.y+e.h){ if(jugador.vy>2 && jugador.y<e.y+10){ e.vivo=false; puntos+=100; document.getElementById("puntos").innerText=puntos; jugador.vy=-10; sEnemigo(); document.getElementById("mensaje").innerText="¡Pisaste al enemigo! +100"; if(nivelActual>=6) shakeY=4; } else if(jugador.invencible<=0){ perderVida("😼 ¡Te tocó un enemigo!"); return; } } }
+  if(jugador.x>nivel.meta.x-20){ if(nivelActual<10){ puntos+=500; document.getElementById("puntos").innerText=puntos; sNivel(); nivelActual++; cargarNivel(nivelActual); document.getElementById("mensaje").innerText="🎉 ¡Nivel completado! +500 - 🔊 Vol "+getVolumenPorc()+"% - 🔥 Intensidad "+getIntensidad()+"%"; shakeX=8; shakeY=8; guardarRecord(); } else { sGanar(); guardarRecord(); document.getElementById("textoVictoria").innerText="¡Ganaste los 10 niveles! Puntos: "+puntos+" | Galletas: "+monedas+" | Récord: "+record; document.getElementById("pantallaVictoria").classList.remove("hidden"); juegoEmpezado=false; jugador.x=-1000; } }
+}
+function dibujar(){
+  ctx.clearRect(0,0,800,400); ctx.save(); ctx.translate(shakeX,shakeY); dibujarFondoRealista();
+  for(let p of nivel.plataformas){ if(p.y===360){ let segs=[]; let lastX=p.x; let sh=nivel.huecos.slice().sort((a,b)=>a.x-b.x); for(let h of sh){ if(h.x>=p.x && h.x<=p.x+p.w){ segs.push({x:lastX,w:h.x-lastX}); lastX=h.x+h.w; } } segs.push({x:lastX,w:p.x+p.w-lastX}); dibujarSueloRealista(p,segs); } else dibujarPlataformaRealista(p); }
+  for(let b of nivel.bloques) dibujarBloque(b); for(let m of nivel.monedas) if(!m.t) dibujarMoneda(m); for(let e of nivel.enemigos) if(e.vivo) dibujarEnemigo(e);
+  let mx=nivel.meta.x-camaraX; ctx.fillStyle="#8B4513"; ctx.fillRect(mx,150,6,210); ctx.fillStyle="#FFD700"; ctx.beginPath(); ctx.arc(mx+3,150,6,0,Math.PI*2); ctx.fill(); let onda=Math.sin(frame*0.1)*4; let gb=ctx.createLinearGradient(mx,150,mx+70,150); gb.addColorStop(0,"#00C853"); gb.addColorStop(1,"#00FF00"); ctx.fillStyle=gb; ctx.beginPath(); ctx.moveTo(mx+6,150); ctx.lineTo(mx+70,155+onda); ctx.lineTo(mx+70,185+onda); ctx.lineTo(mx+6,185); ctx.closePath(); ctx.fill(); ctx.fillStyle="white"; ctx.font="bold 13px Arial"; ctx.fillText("🏁 META",mx+10,172);
+  if(jugador.invencible%20<10) dibujarBluey();
+  for(let p of particulas){ ctx.fillStyle=p.color; ctx.globalAlpha=p.vida/25; ctx.beginPath(); ctx.arc(p.x-camaraX,p.y,3,0,Math.PI*2); ctx.fill(); } ctx.globalAlpha=1;
+  let intensidad=getIntensidad()/100; if(nivelActual>=3){ let grad=ctx.createRadialGradient(400,200,180,400,200,450); grad.addColorStop(0,"rgba(255,0,0,0)"); grad.addColorStop(1,"rgba(255,0,0,"+(0.15+intensidad*0.65)+")"); ctx.fillStyle=grad; ctx.fillRect(-10,-10,820,420); if(nivelActual>=9){ let lat=(Math.sin(frame*0.15)+1)/2; ctx.fillStyle="rgba(255,0,0,"+(0.1+lat*0.25)+")"; ctx.fillRect(-10,-10,820,420); if(Math.floor(frame/15)%2===0){ ctx.strokeStyle="rgba(255,0,0,0.9)"; ctx.lineWidth=8; ctx.strokeRect(0,0,800,400); } } else if(nivelActual>=6){ ctx.strokeStyle="rgba(255,0,0,"+(0.3+intensidad*0.4)+")"; ctx.lineWidth=4+intensidad*4; ctx.strokeRect(0,0,800,400); } if(nivelActual>=9){ for(let i=0;i<10;i++){ let fx=(i*90+frame*2)%800; ctx.font="20px Arial"; ctx.fillText("🔥",fx,385); } } }
+  ctx.restore(); ctx.fillStyle="rgba(0,0,0,0.5)"; ctx.fillRect(10,10,200,10); ctx.fillStyle="yellow"; ctx.fillRect(10,10,200*(jugador.x/nivel.largo),10); ctx.fillStyle="white"; ctx.font="11px Arial"; ctx.fillText("Progreso",10,32); ctx.fillStyle="rgba(0,0,0,0.6)"; ctx.fillRect(620,10,170,22); ctx.fillStyle="white"; ctx.font="bold 12px Arial"; ctx.fillText("🔊 "+getVolumenPorc()+"% 🔥 "+getIntensidad()+"% Nv "+nivelActual,628,26); if(nivelActual>=9){ ctx.fillStyle="red"; ctx.font="bold 20px Arial"; ctx.fillText("🔥 MODO EXTREMO 🔥",300,35); }
+  requestAnimationFrame(()=>{ actualizar(); dibujar(); });
+}
+dibujar();
+</script>
+</body>
+</html>
